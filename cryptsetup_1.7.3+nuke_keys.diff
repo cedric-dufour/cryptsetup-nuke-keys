@@ -1,20 +1,20 @@
-diff -urN cryptsetup-1.6.6/lib/libcryptsetup.h cryptsetup-1.6.6-patched/lib/libcryptsetup.h
---- cryptsetup-1.6.6/lib/libcryptsetup.h	2014-06-28 13:04:02.000000000 +0200
-+++ cryptsetup-1.6.6-patched/lib/libcryptsetup.h	2016-04-22 12:24:04.474545636 +0200
-@@ -739,6 +739,8 @@
- #define CRYPT_ACTIVATE_PRIVATE (1 << 4)
- /** corruption detected (verity), output only */
- #define CRYPT_ACTIVATE_CORRUPTED (1 << 5)
+diff -urN cryptsetup-1.7.3.orig/lib/libcryptsetup.h cryptsetup-1.7.3/lib/libcryptsetup.h
+--- cryptsetup-1.7.3.orig/lib/libcryptsetup.h	2016-10-31 21:29:49.000000000 +0100
++++ cryptsetup-1.7.3/lib/libcryptsetup.h	2017-09-13 11:22:27.192693814 +0200
+@@ -758,6 +758,8 @@
+ #define CRYPT_ACTIVATE_RESTART_ON_CORRUPTION (1 << 9)
+ /** dm-verity: ignore_zero_blocks - do not verify zero blocks */
+ #define CRYPT_ACTIVATE_IGNORE_ZERO_BLOCKS (1 << 10)
 +/** key slot is a nuke, will wipe all keyslots */
 +#define CRYPT_ACTIVATE_NUKE (1 << 30)
  
+ 
  /**
-  * Active device runtime attributes
-diff -urN cryptsetup-1.6.6/lib/luks1/keymanage.c cryptsetup-1.6.6-patched/lib/luks1/keymanage.c
---- cryptsetup-1.6.6/lib/luks1/keymanage.c	2014-06-22 17:47:37.000000000 +0200
-+++ cryptsetup-1.6.6-patched/lib/luks1/keymanage.c	2016-04-22 12:24:04.474545636 +0200
-@@ -941,6 +941,24 @@
- 	r = LUKS_verify_volume_key(hdr, vk);
+diff -urN cryptsetup-1.7.3.orig/lib/luks1/keymanage.c cryptsetup-1.7.3/lib/luks1/keymanage.c
+--- cryptsetup-1.7.3.orig/lib/luks1/keymanage.c	2016-10-31 21:29:49.000000000 +0100
++++ cryptsetup-1.7.3/lib/luks1/keymanage.c	2017-09-13 11:20:54.620677355 +0200
+@@ -964,6 +964,24 @@
+ 
  	if (!r)
  		log_verbose(ctx, _("Key slot %d unlocked.\n"), keyIndex);
 +
@@ -38,10 +38,10 @@ diff -urN cryptsetup-1.6.6/lib/luks1/keymanage.c cryptsetup-1.6.6-patched/lib/lu
  out:
  	crypt_safe_free(AfKey);
  	crypt_free_volume_key(derived_key);
-diff -urN cryptsetup-1.6.6/lib/setup.c cryptsetup-1.6.6-patched/lib/setup.c
---- cryptsetup-1.6.6/lib/setup.c	2014-07-27 20:38:14.000000000 +0200
-+++ cryptsetup-1.6.6-patched/lib/setup.c	2016-04-22 12:44:55.571326939 +0200
-@@ -1647,6 +1647,7 @@
+diff -urN cryptsetup-1.7.3.orig/lib/setup.c cryptsetup-1.7.3/lib/setup.c
+--- cryptsetup-1.7.3.orig/lib/setup.c	2016-10-31 21:29:49.000000000 +0100
++++ cryptsetup-1.7.3/lib/setup.c	2017-09-13 11:20:54.620677355 +0200
+@@ -1693,6 +1693,7 @@
  	struct volume_key *vk = NULL;
  	char *password = NULL, *new_password = NULL;
  	size_t passwordLen, new_passwordLen;
@@ -49,7 +49,7 @@ diff -urN cryptsetup-1.6.6/lib/setup.c cryptsetup-1.6.6-patched/lib/setup.c
  	int r;
  
  	log_dbg("Adding new keyslot, existing passphrase %sprovided,"
-@@ -1657,6 +1658,15 @@
+@@ -1703,6 +1704,15 @@
  	if (r < 0)
  		return r;
  
@@ -65,7 +65,7 @@ diff -urN cryptsetup-1.6.6/lib/setup.c cryptsetup-1.6.6-patched/lib/setup.c
  	r = keyslot_verify_or_find_empty(cd, &keyslot);
  	if (r)
  		return r;
-@@ -1699,6 +1709,10 @@
+@@ -1745,6 +1755,10 @@
  			goto out;
  	}
  
@@ -76,10 +76,10 @@ diff -urN cryptsetup-1.6.6/lib/setup.c cryptsetup-1.6.6-patched/lib/setup.c
  	r = LUKS_set_key(keyslot, new_password, new_passwordLen,
  			 &cd->u.luks1.hdr, vk, cd->iteration_time, &cd->u.luks1.PBKDF2_per_sec, cd);
  	if(r < 0)
-diff -urN cryptsetup-1.6.6/src/cryptsetup.c cryptsetup-1.6.6-patched/src/cryptsetup.c
---- cryptsetup-1.6.6/src/cryptsetup.c	2014-06-23 21:25:59.000000000 +0200
-+++ cryptsetup-1.6.6-patched/src/cryptsetup.c	2016-04-22 12:30:17.591597146 +0200
-@@ -36,6 +36,7 @@
+diff -urN cryptsetup-1.7.3.orig/src/cryptsetup.c cryptsetup-1.7.3/src/cryptsetup.c
+--- cryptsetup-1.7.3.orig/src/cryptsetup.c	2016-10-31 21:29:49.000000000 +0100
++++ cryptsetup-1.7.3/src/cryptsetup.c	2017-09-13 11:20:54.620677355 +0200
+@@ -37,6 +37,7 @@
  static const char *opt_uuid = NULL;
  static const char *opt_header_device = NULL;
  static const char *opt_type = "luks";
@@ -87,7 +87,7 @@ diff -urN cryptsetup-1.6.6/src/cryptsetup.c cryptsetup-1.6.6-patched/src/cryptse
  static int opt_key_size = 0;
  static long opt_keyfile_size = 0;
  static long opt_new_keyfile_size = 0;
-@@ -984,6 +985,10 @@
+@@ -1036,6 +1037,10 @@
  		if (r < 0)
  			goto out;
  
@@ -98,7 +98,7 @@ diff -urN cryptsetup-1.6.6/src/cryptsetup.c cryptsetup-1.6.6-patched/src/cryptse
  		r = crypt_keyslot_add_by_passphrase(cd, opt_key_slot,
  						    password, password_size,
  						    password_new, password_new_size);
-@@ -996,6 +1001,15 @@
+@@ -1048,6 +1053,15 @@
  	return r;
  }
  
@@ -114,7 +114,7 @@ diff -urN cryptsetup-1.6.6/src/cryptsetup.c cryptsetup-1.6.6-patched/src/cryptse
  static int action_luksChangeKey(void)
  {
  	const char *opt_new_key_file = (action_argc > 1 ? action_argv[1] : NULL);
-@@ -1330,6 +1344,7 @@
+@@ -1386,6 +1400,7 @@
  	{ "erase",        action_luksErase ,   1, 1, N_("<device>"), N_("erase all keyslots (remove encryption key)") },
  	{ "luksFormat",   action_luksFormat,   1, 1, N_("<device> [<new key file>]"), N_("formats a LUKS device") },
  	{ "luksAddKey",   action_luksAddKey,   1, 1, N_("<device> [<new key file>]"), N_("add key to LUKS device") },
