@@ -15,3 +15,6 @@ If you provide the nuke password, all password keyslots get deleted, rendering t
 
 For more details check -  http://www.kali.org/how-to/emergency-self-destruction-luks-kali
 
+UPDATE[2019.05.26]:
+https://gitlab.com/kalilinux/packages/cryptsetup/raw/kali/master/debian/patches/cryptsetup_nuke_keys.patch
+
